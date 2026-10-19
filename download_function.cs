@@ -22,56 +22,6 @@ namespace PDF_downloader
        private static string error2 = "";
        private static List<Thread> threads = new();
        private static Dictionary<string, (string, string)> got_downloaded;
-       static public Dictionary<string, (string, string)> GET_PDFs2(Dictionary<string, (string, string)> links, string base_address)
-        {
-            string error = "";
-            using (WebClient client = new())
-            {
-                List<Exception> errors = new List<Exception>();
-                foreach (KeyValuePair<string, (string, string)> link in links)
-                {
-
-
-
-                   string filename = link.Value.Item1 != "" ? string.Format("\\{0}. {1}", link.Key, link.Value.Item1.Split("/")[2].Split("/").First()): string.Format("\\{0}. {1}", link.Key, link.Value.Item2.Split("/")[2].Split("/").First());
-                    try
-                    {
-                        if (filename.EndsWith(".com") || filename.EndsWith(".org") || filename.EndsWith(".in") || filename.EndsWith(".it")|| filename.EndsWith(".gov") || filename.EndsWith(".au")) filename=filename.Substring(0,filename.Length-4) + ".pdf";
-                            client.OpenRead(link.Value.Item1);
-                        string download_filename = new ContentDisposition(client.ResponseHeaders["content-disposition"]).FileName;
-
-                        client.DownloadFile(link.Value.Item1, base_address.TrimEnd('\\') + filename + System.IO.Path.ChangeExtension(download_filename, ".pdf"));
-                        got_downloaded.Add(link.Key, (link.Value.Item1,""));
-                        links.Remove(link.Key);
-                    }
-
-                    catch (Exception ex)
-                    {
-                        try
-                        {
-                            if (filename.EndsWith(".com") || filename.EndsWith(".org") || filename.EndsWith(".in")|| filename.EndsWith(".it") || filename.EndsWith(".gov") || filename.EndsWith(".au")) filename = filename.Substring(0, filename.Length - 4) + ".pdf";
-                            client.OpenRead(link.Value.Item2);
-                            string download_filename = new ContentDisposition(client.ResponseHeaders["content-disposition"]).FileName;
-                            client.DownloadFile(link.Value.Item2, base_address.TrimEnd('\\')+ filename+ System.IO.Path.ChangeExtension(download_filename,".pdf"));
-                            got_downloaded.Add(link.Key, ("",link.Value.Item2));
-                        }
-
-                        catch (Exception ex2)
-                        {
-                            error += string.Format("ID:{0}\n had this error on link 1: {1}\n and this error error on link2: {2}\n\n", link.Key, ex.Message, ex2);
-                        }
-                    }
-                }
-            }
-            if (error != "") 
-                {
-                if (MessageBoxResult.Retry == MessageBox.Show("some files failed to download\n\n"+error, "PDF_download_error", MessageBoxButton.RetryCancel))
-                    return GET_PDFs2(links,base_address);
-                }
-            else MessageBox.Show("all PDFs was downloaded succesfully", "success", MessageBoxButton.OK);
-            return got_downloaded;
-        }
-
         static public async Task<Dictionary<string, (string, string)>> GET_PDFs(Dictionary<string, (string, string)> links, string base_address)
         {
             error2 = "";
@@ -124,6 +74,7 @@ namespace PDF_downloader
                     var web_check = await client.GetAsync(uri);
                     if (web_check==null)
                     {
+                        error2 += ",  was null";
                         return; }
 
                     if (filename.EndsWith(".com") || filename.EndsWith(".org") || filename.EndsWith(".in") || filename.EndsWith(".no") || filename.EndsWith(".it") || filename.EndsWith(".gov") || filename.EndsWith(".au") || filename.EndsWith(".se") || filename.EndsWith(".int") || filename.EndsWith(".ca") || filename.EndsWith(".gh") || filename.EndsWith(".za") || filename.EndsWith(".uk") || filename.EndsWith(".ie") || filename.EndsWith(".dk") || filename.EndsWith(".hk")) filename = filename.Substring(0, filename.Length - filename.Split(".").Last().Length) + "pdf";
@@ -134,9 +85,19 @@ namespace PDF_downloader
                     { download_filename = web_check.Content.Headers.ContentDisposition.FileName; }
                     if (web_check.StatusCode == HttpStatusCode.OK)
                     {
+                        //base_address.TrimEnd('\\') + filename + System.IO.Path.ChangeExtension(download_filename, ".pdf")
+
+                        // start progress bar here
                         var web_stream = await client.GetStreamAsync(uri);
-                        Stream f_stream = new FileStream(base_address.TrimEnd('\\') + filename + System.IO.Path.ChangeExtension(download_filename, ".pdf"), FileMode.CreateNew);
-                        await web_stream.CopyToAsync(f_stream);
+                        byte[] buffer = new byte[1024];
+                        long Totalbytes = client.MaxResponseContentBufferSize;
+                        for (int i = 0; i < Totalbytes; i += buffer.Length)
+                        {
+                            int bytesRead = await web_stream.ReadAsync(buffer, 0, buffer.Length);
+                            if (bytesRead == 0) break;
+                            // update progress bar here
+                            Debug.WriteLine(link.Key + ". "+filename +"\n"+ bytesRead / 1024 + "Kb / " + Totalbytes / 1024 + " Kb");
+                        }
                     }
                 }
                 got_downloaded.Add(link.Key,link.Value);
