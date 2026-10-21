@@ -10,10 +10,10 @@
 
         <TextBox x:Name="excel_file_path_textbox" Margin="10,24,116,0" Text="no_file_selected" VerticalAlignment="Top" FontSize="16"/>
         <Label x:Name="label" Content="Excel links file:" HorizontalAlignment="Left" Margin="10,1,0,0" VerticalAlignment="Top" Height="23" Width="180"/>
-        <Button x:Name="excel_file_path_btn" Content="open file" Margin="0,24,12,0" VerticalAlignment="Top" Height="23" Click="excel_links_btn_Click" FontSize="14" HorizontalAlignment="Right" Width="99"/>
-        <Button x:Name="excel_update_btn" Content="update excel list" HorizontalAlignment="Left" Margin="670,343,0,0" VerticalAlignment="Top" Height="28" Width="120" FontSize="14" Click="excel_update_btn_Click"/>
-        <Button x:Name="download_btn" Content="download PDFs" HorizontalAlignment="Left" Margin="670,376,0,0" VerticalAlignment="Top" Height="28" Width="120" FontSize="14" Click="download_btn_Click"/>
-        <Button x:Name="reset_btn" Content="reset local list" HorizontalAlignment="Left" Margin="670,310,0,0" VerticalAlignment="Top" Height="28" Width="120" FontSize="14" Click="reset_btn_Click"/>
+        <Button x:Name="excel_file_path_btn" Content="select file" Margin="0,24,12,0" VerticalAlignment="Top" Height="23" Click="excel_links_btn_Click" FontSize="14" HorizontalAlignment="Right" Width="99"/>
+        <Button x:Name="excel_update_btn" Content="update excel list" HorizontalAlignment="Left" Margin="646,340,0,0" VerticalAlignment="Top" Height="28" Width="120" FontSize="14" Click="excel_update_btn_Click"/>
+        <Button x:Name="download_btn" Content="download PDFs" HorizontalAlignment="Left" Margin="646,373,0,0" VerticalAlignment="Top" Height="28" Width="120" FontSize="14" Click="download_btn_Click"/>
+        <Button x:Name="reset_btn" Content="reset local list" HorizontalAlignment="Left" Margin="646,307,0,0" VerticalAlignment="Top" Height="28" Width="120" FontSize="14" Click="reset_btn_Click"/>
         <ListBox x:Name="excel_list" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,204,610,10"/>
         <ListBox x:Name="Last_download" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="220,204,400,10"/>
         <ListBox x:Name="not_downloaded" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="424,204,196,10"/>

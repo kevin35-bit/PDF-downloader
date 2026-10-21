@@ -39,6 +39,9 @@ namespace PDF_downloader
                 errorMessage = String.Concat(errorMessage, theException.StackTrace);
                 errorMessage = String.Concat(errorMessage, theException.Source);
                 MessageBox.Show(errorMessage, "Error");
+                workbook?.Close(0);
+                excel_app.ActiveWindow?.Close(false);
+                excel_app?.Quit();
                 return new();
             }
         }
@@ -58,8 +61,10 @@ namespace PDF_downloader
                 temp_list.Add(id, (value, value2));
                 i++;
             }
-            workbook.Close(0);
-            excel_app.Quit();
+
+            workbook?.Close(0);
+            excel_app.ActiveWindow?.Close(false);
+            excel_app?.Quit();
             return temp_list;
         }
         public static System.Windows.Controls.ListBox refresh_excel_listview(System.Windows.Controls.ListBox listBox, Dictionary<string, (string, string)> list)
@@ -76,7 +81,7 @@ namespace PDF_downloader
             return listBox;
         }
 
-        public static void create_excel_output(System.Windows.Controls.TextBox textBox, Dictionary<string, (string, string)> list)
+        public static void create_excel_output(System.Windows.Controls.TextBox textBox, Dictionary<string, (string, string)> list,int max_length)
         {
             if (!Path.IsPathRooted(textBox.Text))
             {
@@ -95,12 +100,15 @@ namespace PDF_downloader
                 worksheet.Cells[1, 1] = "ID";
                 worksheet.Cells[1, 2] = "URL";
                 worksheet.Cells[1, 3] = "alt URL";
-                foreach (KeyValuePair<string, (string, string)> valuePair in list)
+                for (int j = 0; j < max_length; j++)
                 {
-                    worksheet.Cells[i, 1] = valuePair.Key;
-                    worksheet.Cells[i, 2] = valuePair.Value.Item1;
-                    worksheet.Cells[i, 3] = valuePair.Value.Item2;
-                    i++;
+                    if (list.ContainsKey(j.ToString()))
+                    {
+                        worksheet.Cells[i, 1] = j.ToString();
+                        worksheet.Cells[i, 2] = list[j.ToString()].Item1;
+                        worksheet.Cells[i, 3] = list[j.ToString()].Item2;
+                        i++;
+                    }
                 }
                 string filename = Path.ChangeExtension(textBox.Text, ".xlsx");
                 if (File.Exists(filename)) File.Delete(filename);
@@ -115,8 +123,10 @@ namespace PDF_downloader
                 errorMessage = String.Concat(errorMessage, theException.Source);
                 MessageBox.Show(errorMessage, "Error");
             }
-            workbook.Close(0);
-            excel_app.Quit();
+            workbook?.Close(0);
+            excel_app.ActiveWindow?.Close(false);
+            excel_app?.Quit();
+
         }
     }
 }

@@ -91,7 +91,12 @@ namespace PDF_downloader
             got_downloaded = download_function.GET_PDFs(link_list.Where(x => !got_downloaded.ContainsKey(x.Key)).ToDictionary<string, (string, string)>(), output_path_textbox.Text).Result;
             dictonary_n_list_functions.refresh_excel_listview(Last_download, got_downloaded);
             make_difference_list();
-            dictonary_n_list_functions.create_excel_output(excel_downloaded_list_path_textbox , got_downloaded);
+            foreach (KeyValuePair<string, (string, string)> item in dictonary_n_list_functions.instance_excel_window(excel_downloaded_list_path_textbox.Text))
+            {
+                if (!got_downloaded.Keys.Contains(item.Key)) got_downloaded.Add(item.Key,item.Value);
+            }
+            int max_length = got_downloaded.Keys.Max(x => int.Parse(x.Trim('.')));
+            dictonary_n_list_functions.create_excel_output(excel_downloaded_list_path_textbox , got_downloaded, max_length);
         }
 
         private Dictionary<string, (string, string)> excel_and_info_handler(System.Windows.Controls.TextBox textBox, System.Windows.Controls.ListBox listBox, Dictionary<string, (string, string)> list)
@@ -108,13 +113,19 @@ namespace PDF_downloader
 
         void make_difference_list()
         {
-            if (excel_list.Items.Count > 0)
+            if (Last_download.Items.Count > 0)
             {
                 Dictionary<string, (string, string)> temp_dictionary = new(link_list.Where(x => !got_downloaded.ContainsKey(x.Key)));
-                dictonary_n_list_functions.refresh_excel_listview(not_downloaded,temp_dictionary);
+                dictonary_n_list_functions.refresh_excel_listview(not_downloaded, temp_dictionary);
             }
-            else not_downloaded = excel_list;
-
+            else
+            {
+                not_downloaded.Items.Clear();
+                foreach (var item in excel_list.Items)
+                {
+                    not_downloaded.Items.Add(item);
+                }
+            }
             not_downloaded_count_label.Content = not_downloaded.Items.Count.ToString();
         }
 
@@ -135,8 +146,9 @@ namespace PDF_downloader
 
         private void reset_btn_Click(object sender, RoutedEventArgs e)
         {
-            dictonary_n_list_functions.create_excel_output(excel_downloaded_list_path_textbox, new());
+            dictonary_n_list_functions.create_excel_output(excel_downloaded_list_path_textbox, new(),0);
             dictonary_n_list_functions.refresh_excel_listview(Last_download, got_downloaded);
+            got_downloaded = excel_and_info_handler(excel_downloaded_list_path_textbox, Last_download, got_downloaded);
             make_difference_list();
         }
     }
